@@ -507,7 +507,7 @@ a {
 .percent-difference-style {
     font-size: 18px;
     font-family: 'IBM Plex Sans', sans-serif;
-    color: #BD1818;
+    color: red;
 }
 
 .percent-difference-red {
