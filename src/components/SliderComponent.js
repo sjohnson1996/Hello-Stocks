@@ -18,6 +18,7 @@ const SliderComponent = (props) => {
   const [currentEpoch, setCurrentEpoch] = useState(Math.round(currentDate.getTime() / 1000));
   const [yearAgoEpoch, setYearAgoEpoch] = useState(Math.round(currentDate.setFullYear(currentDate.getFullYear() - 1)));
   const [sliderVal, setSliderVal] = useState([0, props.sliderLength]);
+  // const [sliderVal, setSliderVal] = useState([0, props.stockIndexes]);
 
 
   const useStyles = makeStyles(theme => ({
@@ -42,6 +43,11 @@ const SliderComponent = (props) => {
   useEffect(() => {
     props.setStockIndexes(sliderVal);
   }, [sliderVal])
+
+
+  // useEffect(() => {
+    
+  // }, [props.stockIndexes])
 
   const classes = useStyles();
 
@@ -184,6 +190,7 @@ const SliderComponent = (props) => {
         //          </div>
         // }}
         ValueLabelComponent={ValueLabelComponent}
+        // value={props.stockIndexes}
       />
       {/* <Button variant="contained" onClick={() => setSliderVal([0, props.sliderLength])}>Refresh Sliders</Button> */}
     </div>

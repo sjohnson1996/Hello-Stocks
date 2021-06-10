@@ -1,4 +1,4 @@
-import React, {useState, useEffect,  useContext} from "react";
+import React, {useState, useEffect,  useContext, useRef} from "react";
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Paper from '@material-ui/core/Paper';
@@ -57,6 +57,7 @@ import tutorial3 from '../images/tutorial-3.png';
 import tutorial4 from '../images/tutorial-4.png';
 import tutorial5 from '../images/tutorial-5.png';
 import astroGirl from '../images/astro-girl.png';
+import { gsap } from "gsap";
 
 const useStyles = makeStyles(theme => ({
   inputRoot: {
@@ -527,8 +528,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
   const handleChange = (event, value) => {
     // setSearch(event.target.value);
-    console.log(event)
-    console.log(value)
     setSearch(value)
     setNewsStories(null);
     setCurrentTicker(null);
@@ -605,7 +604,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       customizeText: function(e) {
         return (
           <svg overflow="visible">
-            <image y="0" width="100" height="100" href={rocket}>
+            <image onclick={() => console.log('Test')} y="0" width="100" height="100" href={rocket}>
             </image>
           </svg>
         );
@@ -619,8 +618,9 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     return <img src={rocket} />
   }
 
-  const customizeTooltip = (annotation) => {
-    console.log(annotation);
+  const customizeTooltip = (annotation, event) => {
+    
+    // setStockIndexes(annotation.indexes);
     return {
       // html: `<div class='tooltip'>${annotation.description.map(story => {
       //   console.log(story);
@@ -671,7 +671,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
 
   const customizeLineToolTip = (pointInfo) => {
-    console.log(pointInfo);
+    // console.log(pointInfo);
     return {
       // text: `${pointInfo.point.data.month} - $${pointInfo.point.data.price}`,
       html: `<div class="points-tooltip-style">
@@ -690,25 +690,39 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
 
   const annotationTemplate = (annotation) => {
-  console.log(annotation);
   return (
       <svg>
-        <image href={rocket} width="60" height="40" />
-        <text x="70" y="25" className="state">Test</text>
+        <image onClick={() => setStockIndexes(annotation.indexes)} href={rocket} width="30" />
       </svg>
     )
   }
+
+  const navRocketRef = useRef(null);
+  const astroGirlRef = useRef(null);
+  const mainSearchRef = useRef(null);
+
+  useEffect(() => {
+    gsap.from('.hello-leaf-flex', {x: -500, duration: 1, ease: 'elastic'});
+    gsap.from('.stock-research-style', {x: -500, duration: 1, ease: 'elastic', delay: 0.5});
+    gsap.from('.search-bar-container', {opacity: 0, duration: 2, ease: 'elastic', delay: 0.5});
+  }, [])
+
+  useEffect(() => {
+    // if (searchImage) {
+      gsap.to('.main-image-style', {opacity: 1, duration: 2, ease: 'elastic'});
+    // }
+  }, [searchImage])
 
 
   return (
     <div className="main-div">
       <div className="nav-bar-container">
         <div onClick={returnHome} className="hello-stocks-logo-flex">
-          <div className="hello-leaf-flex">
+          <div className="hello-leaf-flex" ref={navRocketRef}>
             <h2 className="hello-stocks-style">HelloStocks</h2>
             <img className="nav-rocket-style" src={redRocket} alt="Tea Leaf"/>
           </div>
-          <h3 className="stock-research-style">Stock Research Made Simple</h3>
+          <h3 ref={navRocketRef} className="stock-research-style">Stock Research Made Simple</h3>
         </div>
         {(currentTicker) ? 
           <div className="nav-search-container">
@@ -721,7 +735,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                   onInputChange={navHandleChange}
                   onChange={navSelectTicker}
                   fullWidth={true}
-                  noOptionsText={(!search.length) ? 'Please Enter A Symbol' : 'Hmm 🤔 Looks like you’ve entered an invalid symbol or we haven’t added that symbol yet. Please try a new search 🙏'}
+                  noOptionsText={(!search.length) ? 'Please Enter A Symbol' : 'Hmm 🤔 Looks like you’ve entered an invalid symbol. Please try a new search 🙏'}
                   // style={{ height: 75 }}
                   renderInput={(params) => <TextField {...params} label="Search Symbol" variant="outlined" />}
                   classes={classes}
@@ -755,37 +769,54 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
               <h2 className="tutorial-description-style">{tutorialArray[0].description}</h2>
               <div className="previous-next-flex">
                 <div>
-                  <h2 className="previous-next-button-style" onClick={() => {
-                    let array = [...tutorialArray];
+                  {(tutorialArray[0].image === tutorial1) ? 
+                    <h2 className="previous-next-button-style" onClick={() => setTutorialOpen(false)}>
+                      Skip
+                    </h2>
+                  :
+                    <h2 className="previous-next-button-style" onClick={() => {
+                      let array = [...tutorialArray];
 
-                    if (tutorialArray[0].image === tutorial1) {
-                      return;
-                    }
+                      if (tutorialArray[0].image === tutorial1) {
+                        return;
+                      }
 
-                    array.unshift(array.pop());
-                    setTutorialArray(array);
-                  }}>
-                    Previous
-                  </h2>
+                      array.unshift(array.pop());
+                      setTutorialArray(array);
+                    }}>
+                      Previous
+                    </h2>
+                  }
                 </div>
                 <div>
-                  <h2 className="previous-next-button-style" onClick={() => {
-                    let array = [...tutorialArray];
-                    console.log(array);
-
-                    if (tutorialArray[1].image === tutorial1) {
+                  {(tutorialArray[0].image === tutorial5) ? 
+                    <h2 className="previous-next-button-style" onClick={() => {
+                      let array = [...tutorialArray];
                       setTutorialOpen(false);
-                      array.push(array.shift());
+                        array.push(array.shift());
+                        setTutorialArray(array);
+                    }}>
+                      Done
+                    </h2>
+                  :
+                    <h2 className="previous-next-button-style" onClick={() => {
+                      let array = [...tutorialArray];
+                      console.log(array);
+
+                      if (tutorialArray[1].image === tutorial1) {
+                        setTutorialOpen(false);
+                        array.push(array.shift());
+                        setTutorialArray(array);
+                        return
+                      }
+                      
+                      array.push(array.shift())
+                      console.log(array);
                       setTutorialArray(array);
-                      return
-                    }
-                    
-                    array.push(array.shift())
-                    console.log(array);
-                    setTutorialArray(array);
-                  }}>
-                    Next
-                  </h2>
+                    }}>
+                      Next
+                    </h2>
+                  }
                 </div>
               </div>
             </div>
@@ -809,7 +840,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
               onInputChange={(e, value) => handleChange(e, value)}
               onChange={selectTicker}
               fullWidth={true}
-              noOptionsText={(!search.length) ? 'Please Enter A Symbol' : 'Hmm 🤔 Looks like you’ve entered an invalid symbol or we haven’t added that symbol yet. Please try a new search 🙏'}
+              noOptionsText={(!search.length) ? 'Please Enter A Symbol' : 'Hmm 🤔 Looks like you’ve entered an invalid symbol. Please try a new search 🙏'}
               renderInput={(params) => <TextField {...params} label="Search Symbol" variant="outlined" />}
               classes={classes}
             />
@@ -933,22 +964,24 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
               {
                 (fiveSignificantDates) ?
                 (fiveSignificantDates.map((annotation, idx) => {
-                  console.log(annotation);
+                  {/* console.log(annotation); */}
                   return <Annotation
                               key={idx}
                               argument={annotation.date}
-                              type="image"
+                              type="custom"
                               description={annotation.stories}
                               dateRange={annotation.dateRange}
                               priceDifference={annotation.priceDifference}
+                              indexes={annotation.indexes}
                               color="rgba(255, 255, 255, 0)"
                               border="rgba(255, 255, 255, 0)"
                               width="30"
                               offsetX={0}
                               offsetY={-40}
                               interactive={true}
+                              render={annotationTemplate}
                           >
-                              <Image url={annotation.image}/>
+                              {/* <Image url={annotation.image}/> */}
                           </Annotation>
                 }))
                 :
@@ -974,6 +1007,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 chartData={chartData}
                 sliderLength={currentChartData.length - 1}
                 resetSliders={resetSliders}
+                stockIndexes={stockIndexes}
               />
             </div>
             
@@ -1001,9 +1035,9 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     {(!currentChartData) ? 
       <div>
         {(searchImage) ? 
-          <img className="main-image-style" src={astroGirl} />
+          <img className="main-image-style" src={astroGirl} ref={astroGirlRef} />
         :
-          <img src={errorImage} alt="Unexpected Error!" className="ponder-girl-style"/>
+          <img src={errorImage} alt="Unexpected Error!" className="ponder-girl-style" ref={astroGirlRef} />
         }
       </div>
     : null}
@@ -1020,6 +1054,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
             <div className="news-dates-flex">
               <h2 className="news-header-style">News | Press Releases</h2>
               <h2 className="news-range-style">{chartData[stockIndexes[1]].month} - {chartData[stockIndexes[0]].month}</h2>
+              <h2 className="news-range-style">{(chartData[stockIndexes[0]].price > chartData[stockIndexes[1]].price) ? <span className="red-price">{((chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price) < 0) ? '' : '-'}{chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price}</span> : <span className="green-price">+{chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price}</span>}</h2>
             </div>
             {currentNewsSlice.map(story => {
               return <a href={story.url} target="_blank">

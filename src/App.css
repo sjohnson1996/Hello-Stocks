@@ -75,6 +75,13 @@ body {
     font-size: 30px;
     color: #3D3D3D;
     padding: 0 30px 0 30px;
+    transition: transform 0.25s, text-shadow 0.25s;
+    cursor: pointer;
+}
+
+.nav-item-style:hover {
+    transform: scale(1.05);
+    text-shadow: 1px 1px 2px black;
 }
 
 .disclaimer-padding {
@@ -94,13 +101,28 @@ body {
     font-size: 54px;
 }
 
+@keyframes astro-girl-animation {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 .main-image-style {
     margin-top: 50px;
     padding-right: 120px;
+    /* animation: astro-girl-animation 1s forwards; */
+    /* animation-delay: 0.5s; */
+    /* opacity: 0; */
 }
 
 .ponder-girl-style {
     margin-top: 100px;
+    animation: astro-girl-animation 1s forwards;
+    opacity: 0;
 }
 
 .stock-logo-style {
@@ -299,8 +321,9 @@ a {
 .slider-lines-container {
     position: absolute;
     top: 75px;
-    width: 100%;
+    width: 97.3%;
     z-index: 1;
+    padding-left: 30px;
 }
 
 .paper-z-index {
@@ -366,6 +389,12 @@ a {
     border: 1px solid black;
     margin-bottom: 47px;
     cursor: pointer;
+    transition: transform 0.5s, box-shadow 0.5s;
+}
+
+.reset-button-style:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px black;
 }
 
 .news-dates-flex {
@@ -432,6 +461,12 @@ a {
     border: 1px solid black;
     padding: 15px 25px 15px 25px;
     cursor: pointer;
+    transition: transform 0.5s, box-shadow 0.5s
+}
+
+.tutorial-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px black;
 }
 
 .open-close-price-style {
@@ -545,6 +580,12 @@ a {
     padding: 10px 20px 10px 20px;
     margin-left: 15px;
     color: #474747;
+    transition: transform 0.5s, box-shadow 0.5s;
+}
+
+.search-button-style:hover {
+    box-shadow: 0 0 10px black;
+    transform: scale(1.05);
 }
 
 .rocket-headline-flex {
