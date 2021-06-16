@@ -3,6 +3,7 @@ import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Slider from '@material-ui/core/Slider';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const SliderComponent = (props) => {
   // const useStyles = makeStyles((theme) => ({
@@ -90,6 +91,8 @@ const SliderComponent = (props) => {
 
   const iOSBoxShadow = '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.13),0 0 0 1px rgba(0,0,0,0.02)';
 
+  const thumbSize = useMediaQuery('(min-width:600px)');
+
   const IOSSlider = withStyles({
   root: {
     color: '#3880ff',
@@ -97,8 +100,12 @@ const SliderComponent = (props) => {
     padding: '15px 0',
   },
   thumb: {
-    height: 28,
-    width: 28,
+    // height: 28,
+    // width: 28,
+    position: 'absolute',
+    top: 20,
+    height: (thumbSize) ? 28 : 18,
+    width: (thumbSize) ? 28 : 18,
     backgroundColor: '#fff',
     boxShadow: iOSBoxShadow,
     marginTop: -14,

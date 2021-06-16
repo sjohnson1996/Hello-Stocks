@@ -43,6 +43,8 @@ import Chart, {
   Point,
   Font,
   Grid,
+  AdaptiveLayout,
+  Size,
 } from 'devextreme-react/chart';
 import rocket from '../images/rocket.png';
 import redRocket from '../images/red-rocket.png';
@@ -58,6 +60,7 @@ import tutorial4 from '../images/tutorial-4.png';
 import tutorial5 from '../images/tutorial-5.png';
 import astroGirl from '../images/astro-girl.png';
 import { gsap } from "gsap";
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const useStyles = makeStyles(theme => ({
   inputRoot: {
@@ -688,11 +691,13 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
   const chartRef = React.createRef();
 
+  const smallRocket = useMediaQuery('(min-width:600px)');
+
 
   const annotationTemplate = (annotation) => {
   return (
       <svg>
-        <image onClick={() => setStockIndexes(annotation.indexes)} href={rocket} width="30" />
+        <image onClick={() => setStockIndexes(annotation.indexes)} href={rocket} width={(smallRocket) ? '30' : '20'} />
       </svg>
     )
   }
@@ -901,24 +906,19 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
             </div>
 
             <Chart
-              // ref={chartRef}
               dataSource={currentChartData}
-              // customizeLabel={customizeLabel}
               onPointHoverChanged={(e) => {
                 const point = e.target;
                 if (point.isHovered()) {
                     point.showTooltip();
                 }
               }}
-              // onSeriesHoverChanged={(e) => {
-              //   const series = e.target;
-              //   console.log('Test');
-              //   if (series.isHovered()) {
-              //       console.log('Hovering');
-              //   }}
-              // }
               className="chart-z-index"
             >
+              {/* <Size 
+                height={300}
+                width={300}
+              /> */}
               <Tooltip
                 customizeTooltip={customizeLineToolTip}
                 enabled={true}
@@ -960,6 +960,12 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                   width={50.5} 
                   height={105.75}
                 />
+                {/* <Tooltip
+                  customizeTooltip={customizeTooltip}
+                  enabled={true}
+                  arrowLength={10}
+                  interactive={true}
+                /> */}
               </CommonAnnotationSettings>
               {
                 (fiveSignificantDates) ?
