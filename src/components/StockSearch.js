@@ -1016,13 +1016,14 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 stockIndexes={stockIndexes}
               />
             </div>
-            
           </Paper>
 
 
 
-
           <div className="company-profile-container">
+            {/* <div className="mobile-reset-container">
+              <h2 className="reset-button-style mobile-reset" onClick={() => setResetSliders(!resetSliders)}>Reset</h2>
+            </div> */}
             <div>
               <h2 className="company-profile-style">Company Profile</h2>
               <h3 className="profile-para-style">{currentTickerDetails.description}</h3>

@@ -114,16 +114,20 @@ body {
 
 .main-image-style {
     margin-top: 50px;
-    padding-right: 120px;
+    /* padding-right: 120px; */
     /* animation: astro-girl-animation 1s forwards; */
     /* animation-delay: 0.5s; */
     /* opacity: 0; */
+    width: 90vw;
+    max-width: 800px;
 }
 
 .ponder-girl-style {
-    margin-top: 100px;
+    margin-top: 50px;
     animation: astro-girl-animation 1s forwards;
     opacity: 0;
+    width: 90vw;
+    max-width: 800px;
 }
 
 .stock-logo-style {
@@ -137,6 +141,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-left: 10px;
 }
 
 .chart-company-info-flex {
@@ -170,7 +175,7 @@ body {
     flex-direction: row;
     flex-wrap: wrap;
     margin: 0 auto;
-    max-width: 1500px;
+    max-width: 1000px;
     justify-content: center;
 }
 
@@ -344,6 +349,7 @@ a {
 .nav-search-container {
     width: 500px;
     padding-right: 50px;
+    margin: 0 10px 0 10px;
 }
 
 .price-style {
@@ -417,6 +423,8 @@ a {
 
 .loading-robot-style {
     margin: 0 auto;
+    width: 90vw;
+    max-width: 800px;
 }
 
 .loading-search-header-style {
@@ -756,4 +764,13 @@ a {
     .slider-lines-container {
         width: 91.5%;
     }
+}
+
+.mobile-reset {
+    margin-bottom: 0;
+    margin-top: 30px;
+}
+
+.mobile-reset-container {
+    text-align: center;
 }
