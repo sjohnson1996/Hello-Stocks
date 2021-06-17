@@ -273,18 +273,45 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 
                 axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${tempChartData[currentSegmentLargest.indexes[0]].newsDates}&to=${tempChartData[currentSegmentLargest.indexes[1]].newsDates}&token=c2mjfh2ad3idu4ai7v4g`)
                   .then(news => {
-                        const stories = [];
-                        let k = 0;
-                        while (stories.length < 3) {
-                          console.log('Looping');
-                          if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
-                            stories.push(news.data[k]);
+                        if (news.data.length) {
+                          if (news.data.length < 3) {
+                            const stories = [];
+                            let k = 0;
+                            while (stories.length < news.data.length) {
+
+                              // if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
+                              //   stories.push(news.data[k]);
+                              // }
+                              stories.push(news.data[k]);
+                              k++;
+                            }
+                            currentSegmentLargest.stories = stories;
+                  
+                            fiveSignificantDates.push(currentSegmentLargest);
+                          } else {
+                            const stories = [];
+                            let k = 0;
+                            while (stories.length < 3) {
+                              // if (k === news.data.length && stories.length === 0) {
+                              //   stories.push(...news.data.slice(0,2));
+                              //   break;
+                              // }
+
+                              if (news.data[k]?.headline) {
+                                if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
+                                  stories.push(news.data[k]);
+                                }
+                              }
+
+                              k++;
+
+                              if (k >= news.data.length) break;
+                            }
+                            currentSegmentLargest.stories = stories;
+                  
+                            fiveSignificantDates.push(currentSegmentLargest);
                           }
-                          k++;
                         }
-                        currentSegmentLargest.stories = stories;
-              
-                        fiveSignificantDates.push(currentSegmentLargest);
                   })
       
                 
@@ -632,24 +659,30 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       html: `<div class='tooltip'>
               <h2 class="tooltip-date-style">${annotation.dateRange[0]} - ${annotation.dateRange[1]}</h2>
               <h2>${(annotation.priceDifference[0] > annotation.priceDifference[1]) ? `<span class="red-price">-${(annotation.priceDifference[0] - annotation.priceDifference[1]).toString().slice(0, (annotation.priceDifference[0] - annotation.priceDifference[1]).toString().indexOf('.') + 3)} (-${(100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().slice(0, (100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().indexOf('.') + 3)}%)</span>` : `<span class="green-price">+${(annotation.priceDifference[1] - annotation.priceDifference[0]).toString().slice(0, (annotation.priceDifference[1] - annotation.priceDifference[0]).toString().indexOf('.') + 3)} (+${(100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().slice(0, (100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().indexOf('.') + 3)}%)</span>`} </h2>
-              <div class="rocket-headline-flex">
-                <div>
-                  <img class="tooltip-rocket-style" src="${rocket}" />
-                </div>
-                <h3 class="tooltip-headline-style">${annotation.description[0].headline}</h3>
-              </div>
-              <div class="rocket-headline-flex">
-                <div>
-                  <img class="tooltip-rocket-style" src="${rocket}" />
-                </div>
-                <h3 class="tooltip-headline-style">${annotation.description[1].headline}</h3>
-              </div>
-              <div class="rocket-headline-flex">
-                <div>
-                  <img class="tooltip-rocket-style" src="${rocket}" />
-                </div>
-                <h3 class="tooltip-headline-style">${annotation.description[2].headline}</h3>
-              </div>
+              ${(annotation?.description[0]?.headline) ? 
+                `<div class="rocket-headline-flex">
+                  <div>
+                    <img class="tooltip-rocket-style" src="${rocket}" />
+                  </div>
+                  <h3 class="tooltip-headline-style">${annotation.description[0].headline}</h3>
+                </div>`
+              : ''}
+              ${(annotation?.description[1]?.headline) ? 
+                `<div class="rocket-headline-flex">
+                  <div>
+                    <img class="tooltip-rocket-style" src="${rocket}" />
+                  </div>
+                  <h3 class="tooltip-headline-style">${annotation.description[1].headline}</h3>
+                </div>`
+              : ''}
+              ${(annotation?.description[2]?.headline) ? 
+                `<div class="rocket-headline-flex">
+                  <div>
+                    <img class="tooltip-rocket-style" src="${rocket}" />
+                  </div>
+                  <h3 class="tooltip-headline-style">${annotation.description[2].headline}</h3>
+                </div>`
+              : ''}
             </div>`,
     };
   }

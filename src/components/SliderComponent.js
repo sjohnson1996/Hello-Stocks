@@ -160,8 +160,6 @@ const SliderComponent = (props) => {
   const ValueLabelComponent = (props) => {
   const { children, open, value } = props;
 
-  console.log(props);
-
   return (
     <Tooltip
       title={value}

@@ -434,6 +434,8 @@ a {
 
 .api-error-image-style {
     margin: 0 auto;
+    width: 90vw;
+    max-width: 800px;
 }
 
 .abort-mission-style {
