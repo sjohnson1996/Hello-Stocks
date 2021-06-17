@@ -93,6 +93,7 @@ body {
     margin: 0 auto;
     max-width: 500px;
     margin-top: 50px;
+    padding: 0 15px 0 15px;
 }
 
 .search-tsla-style {
@@ -546,6 +547,7 @@ a {
 .tooltip {
     text-align: left;
     max-width: 600px;
+    width: 90vw;
 }
 
 .tooltip-date-style {
