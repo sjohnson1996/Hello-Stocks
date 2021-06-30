@@ -6,28 +6,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 const SliderComponent = (props) => {
-  // const useStyles = makeStyles((theme) => ({
-  //   root: {
-  //     width: 300 + theme.spacing(3) * 2,
-  //   },
-  //   margin: {
-  //     height: theme.spacing(3),
-  //   },
-  // }));
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentEpoch, setCurrentEpoch] = useState(Math.round(currentDate.getTime() / 1000));
   const [yearAgoEpoch, setYearAgoEpoch] = useState(Math.round(currentDate.setFullYear(currentDate.getFullYear() - 1)));
   const [sliderVal, setSliderVal] = useState([0, props.sliderLength]);
-  // const [sliderVal, setSliderVal] = useState([0, props.stockIndexes]);
 
 
   const useStyles = makeStyles(theme => ({
     inputRoot: {
-      // color: "purple",
-      // "& .MuiOutlinedInput-notchedOutline": {
-      //   backgroundColor: "#FFFFFF"
-      // },
       "& .MuiSlider-valueLabel": {
         position: "relative",
         top: 50,
@@ -70,7 +57,6 @@ const SliderComponent = (props) => {
         boxShadow: '#ccc 0 2px 3px 1px',
       },
       '& .bar': {
-        // display: inline-block !important;
         height: 9,
         width: 1,
         backgroundColor: 'currentColor',
@@ -100,8 +86,7 @@ const SliderComponent = (props) => {
     padding: '15px 0',
   },
   thumb: {
-    // height: 28,
-    // width: 28,
+    border: (props.sliderWindow) ? '5px solid #F40969' : 'none',
     position: 'absolute',
     top: 20,
     height: (thumbSize) ? 28 : 18,
@@ -173,6 +158,14 @@ const SliderComponent = (props) => {
   );
 }
 
+// const RedCircle = (props) => {
+//   return (
+//     <span {...props} className="red-slider-thumb">
+
+//     </span>
+//   );
+// }
+
   return (
     <div>
       <IOSSlider 
@@ -188,16 +181,9 @@ const SliderComponent = (props) => {
           console.log(value);
           setSliderVal(value);
         }}
-        // ValueLabelComponent={(props) => {
-        //   const { month } = props;
-        //   return <div>
-        //           <h1>{month}</h1>
-        //          </div>
-        // }}
         ValueLabelComponent={ValueLabelComponent}
-        // value={props.stockIndexes}
+        // ThumbComponent={RedCircle}
       />
-      {/* <Button variant="contained" onClick={() => setSliderVal([0, props.sliderLength])}>Refresh Sliders</Button> */}
     </div>
   )
 }

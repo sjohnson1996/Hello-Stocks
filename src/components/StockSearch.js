@@ -2,15 +2,6 @@ import React, {useState, useEffect,  useContext, useRef} from "react";
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Paper from '@material-ui/core/Paper';
-// import {
-//   Chart,
-//   ArgumentAxis,
-//   ValueAxis,
-//   LineSeries,
-//   Title,
-//   Legend,
-//   Tooltip,
-// } from '@devexpress/dx-react-chart-material-ui';
 import { EventTracker } from '@devexpress/dx-react-chart';
 import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
@@ -23,6 +14,8 @@ import mainimage from '../images/stocks-home-image.svg';
 import mainImage2 from '../images/rectangle-1.svg';
 import mainImage3 from '../images/rectangle-2.png';
 import ponderGirl from '../images/ponder-girl.png';
+import redCircle from '../images/red-circle.png';
+import circleRocket from '../images/circle-rocket.png';
 import Pagination from '@material-ui/lab/Pagination';
 import TextLoop from "react-text-loop";
 
@@ -191,6 +184,18 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   ]);
 
 
+  // Learn By Doing Tutorial State
+  const [rocketCircle, setRocketCircle] = useState(false);
+  const [windowIndexes, setWindowIndexes] = useState(false);
+  const [rocketCircleCount, setRocketCircleCount] = useState(0);
+  const [displayRocketWindow, setDisplayRocketWindow] = useState(false);
+
+  const [headlineWindow, setHeadlineWindow] = useState(false);
+  const [sliderWindow, setSliderWindow] = useState(false);
+  const [resetWindow, setResetWindow] = useState(false);
+  const [searchWindow, setSearchWindow] = useState(false);
+
+
 // Refactor API calls and useEffects, need to use formatted chart data chartData for this useEffect
   useEffect(() => {
     if (currentTicker) {
@@ -200,7 +205,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
     let yyyy = today.getFullYear();
 
     today = yyyy + '-' + mm + '-' + dd;
@@ -278,10 +283,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                             const stories = [];
                             let k = 0;
                             while (stories.length < news.data.length) {
-
-                              // if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
-                              //   stories.push(news.data[k]);
-                              // }
                               stories.push(news.data[k]);
                               k++;
                             }
@@ -292,10 +293,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                             const stories = [];
                             let k = 0;
                             while (stories.length < 3) {
-                              // if (k === news.data.length && stories.length === 0) {
-                              //   stories.push(...news.data.slice(0,2));
-                              //   break;
-                              // }
 
                               if (news.data[k]?.headline) {
                                 if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
@@ -322,6 +319,15 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
         console.log(fiveSignificantDates);
         setFiveSignificantDates(fiveSignificantDates);
         setApiLoading(false);
+      })
+      .then(() => {
+        if (!localStorage.getItem('tutorial')) {
+          setTimeout(() => {
+            setRocketCircle(true);
+            setDisplayRocketWindow(true);
+            localStorage.setItem('tutorial', true);
+          }, 2000)
+        }
       })
       .catch(() => setErrorLoadingData(true))
     })
@@ -357,7 +363,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   const returnTimeFrame = () => {
       let today = new Date();
       let dd = String(today.getDate()).padStart(2, '0');
-      let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      let mm = String(today.getMonth() + 1).padStart(2, '0');
       let yyyy = today.getFullYear();
 
       today = yyyy + '-' + mm + '-' + dd;
@@ -438,14 +444,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${returnTimeFrame()[1]}/${returnTimeFrame()[0]}?unadjusted=false&sort=asc&limit=550&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
         .then(res => {setStockData(res.data.results); console.log(res.data)});
 
-      
-
-      // axios.get(`https://api.polygon.io/v1/meta/symbols/${currentTicker}/company?&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
-      //   .then(res => {
-      //     setCurrentTickerDetails(res.data);
-      //     console.log(res.data);
-      //   })
-
       axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${currentTicker}&metric=all&token=c2mjfh2ad3idu4ai7v4g`)
         .then(res => {
           console.log(res.data);
@@ -482,7 +480,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       const tempChartData = [];
 
       stockData.map(data => {
-        // console.log(moment(data.t).format('YYYY-MM-DD'));
         tempChartData.push({ month: moment(data.t).format('MMMM Do YYYY'), price: data.c, monthYear: moment(data.t).format('MMMM YYYY'), newsDates: moment(data.t).format('YYYY-MM-DD'), allInfo: data })
       })
 
@@ -491,73 +488,10 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       setCurrentChartData(tempChartData); 
       setStockIndexes([0, tempChartData.length - 1]);
 
-
-      // Run the stock data algorithm here
-
-      // const fiveSignificantDates = [];
-
-      // const mainSegmentsLength = Math.floor(tempChartData.length / 5);
-
-      // for (let i = 0; i < 5; i++) {
-
-      //   const mainSegment = tempChartData.slice(i * mainSegmentsLength, (i * mainSegmentsLength) + mainSegmentsLength);
-
-      //   const currentSegmentLargest = {
-      //     indexes: [],
-      //     value: 0,
-      //     middlePoint: {},
-      //     date: '',
-      //     description: 'Test',
-      //     image: rocket,
-      //     stories: [],
-      //   };
-
-      //   for (let j = 0; j < mainSegment.length; j++) {
-
-      //     if (mainSegment[j + 5]) {
-      //       if (Math.abs(mainSegment[j].price - mainSegment[j + 5].price) > currentSegmentLargest.value) {
-              
-      //         // currentSegmentLargest.indexes = [j, j + 5];
-      //         currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[j + 5])];
-      //         currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[j + 5].price);
-      //         currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j + 3])];
-      //         currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j + 3])].newsDates;
-      //       }
-      //     } else {
-      //       if (Math.abs(mainSegment[j] - mainSegment[mainSegment.length - 1]) > currentSegmentLargest.value) {
-      //         // currentSegmentLargest.indexes = [j, mainSegment.length - 1];
-      //         currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[mainSegment.length - 1])];
-      //         currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[mainSegment.length - 1].price);
-      //         currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j])];
-      //         currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j])].newsDates;
-      //       }
-      //     }
-      //   }
-
-      //   if (allNewsStories) {
-      //     const stories = [];
-      //     let k = 0;
-      //     while (stories.length < 3) {
-      //       if (allNewsStories[k].headline.includes('Apple') || allNewsStories[k].headline.includes('Apples') || allNewsStories[k].headline.includes('AAPL')) {
-      //         stories.push(allNewsStories[k]);
-      //       }
-      //     }
-      //     currentSegmentLargest.stories = stories;
-      //   }
-
-
-      //   fiveSignificantDates.push(currentSegmentLargest);
-
-      // }
-
-      // console.log(fiveSignificantDates);
-      // setFiveSignificantDates(fiveSignificantDates);
-
     }
   }, [stockData])
 
   const handleChange = (event, value) => {
-    // setSearch(event.target.value);
     setSearch(value)
     setNewsStories(null);
     setCurrentTicker(null);
@@ -570,15 +504,12 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     setPriceQuote(null);
     setCurrentNewsPage([0, 10]);
     setCurrentTickerDetails(null);
-    // setSearchImage(null);
-
   }
 
   const selectTicker = (event, value) => {
     if (value?.ticker) {
       setCurrentTicker(value.ticker);
       console.log(value.ticker);
-      // setTickers([]);
     }
   }
 
@@ -590,7 +521,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     if (value?.ticker) {
       setCurrentTicker(value.ticker);
       console.log(value.ticker);
-      // setTickers([]);
     }
   }
 
@@ -605,7 +535,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   const ArgumentLabel = props => {
     const { x } = props;
     const { text } = props;
-    // filter Labels
     if (
       lastLabelCoordinate &&
       lastLabelCoordinate < x &&
@@ -649,13 +578,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   }
 
   const customizeTooltip = (annotation, event) => {
-    
-    // setStockIndexes(annotation.indexes);
     return {
-      // html: `<div class='tooltip'>${annotation.description.map(story => {
-      //   console.log(story);
-      //   return <h5>{story.headline}</h5>
-      // })}</div>`,
       html: `<div class='tooltip'>
               <h2 class="tooltip-date-style">${annotation.dateRange[0]} - ${annotation.dateRange[1]}</h2>
               <h2>${(annotation.priceDifference[0] > annotation.priceDifference[1]) ? `<span class="red-price">-${(annotation.priceDifference[0] - annotation.priceDifference[1]).toString().slice(0, (annotation.priceDifference[0] - annotation.priceDifference[1]).toString().indexOf('.') + 3)} (-${(100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().slice(0, (100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().indexOf('.') + 3)}%)</span>` : `<span class="green-price">+${(annotation.priceDifference[1] - annotation.priceDifference[0]).toString().slice(0, (annotation.priceDifference[1] - annotation.priceDifference[0]).toString().indexOf('.') + 3)} (+${(100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().slice(0, (100 * Math.abs( (annotation.priceDifference[0] - annotation.priceDifference[1]) / ((annotation.priceDifference[0] + annotation.priceDifference[1]) / 2))).toString().indexOf('.') + 3)}%)</span>`} </h2>
@@ -707,9 +630,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
 
   const customizeLineToolTip = (pointInfo) => {
-    // console.log(pointInfo);
     return {
-      // text: `${pointInfo.point.data.month} - $${pointInfo.point.data.price}`,
       html: `<div class="points-tooltip-style">
               <h2>${pointInfo.point.data.month}</h2>
               <h3>Open: ${pointInfo.point.data.allInfo.o}</h3>
@@ -735,6 +656,23 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     )
   }
 
+  const redCircleTemplate = (annotation) => {
+    return (
+      <svg>
+        <image onClick={() => setStockIndexes(annotation.indexes)} href={circleRocket} width="70" />
+      </svg>
+    )
+  }
+
+  const tutorialAnnotationTemplate = (annotation) => {
+    return (
+      (rocketCircle) ?
+      redCircleTemplate()
+      :
+      annotationTemplate()
+    );
+  }
+
   const navRocketRef = useRef(null);
   const astroGirlRef = useRef(null);
   const mainSearchRef = useRef(null);
@@ -746,15 +684,27 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   }, [])
 
   useEffect(() => {
-    // if (searchImage) {
       gsap.to('.main-image-style', {opacity: 1, duration: 2, ease: 'elastic'});
-    // }
   }, [searchImage])
+
+
+  const scroll = (ref) => {
+    ref.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
+  }
+
+  const rocketCircleRef = React.createRef();
+  const headlineWindowRef = React.createRef();
+  const sliderWindowRef = React.createRef();
+  const resetWindowRef = React.createRef();
+  const searchWindowRef = React.createRef();
 
 
   return (
     <div className="main-div">
-      <div className="nav-bar-container">
+      <div ref={searchWindowRef} className="nav-bar-container">
         <div onClick={returnHome} className="hello-stocks-logo-flex">
           <div className="hello-leaf-flex" ref={navRocketRef}>
             <h2 className="hello-stocks-style">HelloStocks</h2>
@@ -774,7 +724,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                   onChange={navSelectTicker}
                   fullWidth={true}
                   noOptionsText={(!search.length) ? 'Please Enter A Symbol' : 'Hmm 🤔 Looks like you’ve entered an invalid symbol. Please try a new search 🙏'}
-                  // style={{ height: 75 }}
                   renderInput={(params) => <TextField {...params} label="Search Symbol" variant="outlined" />}
                   classes={classes}
                 />
@@ -783,6 +732,38 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 <h2 className="search-button-style">Search</h2>
               </div>
             </div>
+
+            {(searchWindow) ? 
+              <div className="window-arrow-flex search-window-position">
+                <div className="arrow-up"></div>
+                <div className="red-circle-window-style headline-window-style">
+                  <div className="yellow-text-container">
+                    <h3 className="window-text-style">Start a new search on the top right corner!</h3>
+                  </div>
+                  <div className="white-bottom-buttons-flex">
+                    <h3 
+                      className="white-bottom-buttons-style"
+                      onClick={() => {
+                        setSearchWindow(false);
+                        setResetWindow(true);
+                        scroll(resetWindowRef);
+                      }}
+                    >
+                      Prev
+                    </h3>
+                    <h3 
+                      className="white-bottom-buttons-style"
+                      onClick={() => {
+                        setSearchWindow(false);
+                      }}
+                    >
+                      Next
+                    </h3>
+                  </div>
+                </div>
+              </div> 
+            : <div></div>}
+
           </div>
         :
           <div className="nav-items-flex">
@@ -915,7 +896,16 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
           </div>
         </div>
         <div>
-          <h1 className="tutorial-button" onClick={() => setTutorialOpen(true)}>VIEW TUTORIAL</h1>
+          <h1 
+            className="tutorial-button" 
+            // onClick={() => setTutorialOpen(true)}
+            onClick={() => {
+              setRocketCircle(true);
+              setDisplayRocketWindow(true);
+            }}
+          >
+            VIEW TUTORIAL
+          </h1>
         </div>
       </div>
     : null}
@@ -925,7 +915,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     {(currentChartData && currentTickerDetails && priceQuote && basicFinancials && !apiLoading) ?
         <div className="align-ticker-details">
           
-          <div className="chart-company-info-flex">
+          <div ref={rocketCircleRef} className="chart-company-info-flex">
           <Paper className="chart-paper paper-z-index">
 
 
@@ -961,19 +951,14 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 <Point hoverMode="onlyPoint" visible={true} />
               </CommonSeriesSettings>
               <Series 
-                // name={currentTicker}
                 name="stock"
                 valueField="price"
-                // argumentField="month"
                 argumentField="newsDates"
                 type="line"
               >
                 <Point hoverMode="onlyPoint" visible={true} />
               </Series>
               <ArgumentAxis 
-                // tickFormat={format}
-                // showTicks={false}
-                // labelComponent={ArgumentLabel}
                 argumentType="datetime"
                 discreteAxisDivisionMode="crossLabels"
                 valueMarginsEnabled={false}
@@ -993,17 +978,21 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                   width={50.5} 
                   height={105.75}
                 />
-                {/* <Tooltip
-                  customizeTooltip={customizeTooltip}
-                  enabled={true}
-                  arrowLength={10}
-                  interactive={true}
-                /> */}
               </CommonAnnotationSettings>
               {
                 (fiveSignificantDates) ?
                 (fiveSignificantDates.map((annotation, idx) => {
-                  {/* console.log(annotation); */}
+                  {/* if (idx === 3 && rocketCircle) {
+                    console.log(annotation.indexes);
+                    if (!windowIndexes) setWindowIndexes(annotation.indexes);
+                  } */}
+                  if ((annotation.indexes[0] > 100 && annotation.indexes[0] < 200) && rocketCircle) {
+                    console.log(annotation.indexes);
+                    if (!windowIndexes) {
+                      setWindowIndexes(annotation.indexes);
+                      setRocketCircleCount(rocketCircleCount + 1);
+                    }
+                  }
                   return <Annotation
                               key={idx}
                               argument={annotation.date}
@@ -1018,9 +1007,13 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                               offsetX={0}
                               offsetY={-40}
                               interactive={true}
-                              render={annotationTemplate}
+                              render={
+                                (annotation.indexes[0] > 100 && annotation.indexes[0] < 200 && rocketCircleCount < 2) ? 
+                                  ((rocketCircle) ? redCircleTemplate : annotationTemplate)
+                                : 
+                                  annotationTemplate
+                              }
                           >
-                              {/* <Image url={annotation.image}/> */}
                           </Annotation>
                 }))
                 :
@@ -1038,7 +1031,26 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
             <div className="slider-lines-container">
               <div className="lines-flex">
                 {chartData.map((line, idx) => {
-                  return <div key={idx} className={(stockIndexes[0] === idx || stockIndexes[1] === idx) ? ((stockIndexes[0] === 0 && stockIndexes[1] === currentChartData.length - 1) ? 'tallLineInvisible' : 'tallLineStyle') : 'noLineStyle'}></div>
+                  return <div 
+                          key={idx} 
+                          className={
+                            (stockIndexes[0] === idx || stockIndexes[1] === idx) ? 
+                              (
+                                (stockIndexes[0] === 0 && stockIndexes[1] === currentChartData.length - 1) ? 
+                                    'tallLineInvisible' 
+                                  : 
+                                    'tallLineStyle'
+                              ) 
+                            : 
+                              (
+                                (windowIndexes && windowIndexes[0] === idx) ? 
+                                    'noLineStyleZIndex' 
+                                  : 
+                                    'noLineStyle'
+                              )
+                          }
+                         >
+                         </div>
                 })}
               </div>
               <SliderComponent
@@ -1047,22 +1059,95 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 sliderLength={currentChartData.length - 1}
                 resetSliders={resetSliders}
                 stockIndexes={stockIndexes}
+                sliderWindow={sliderWindow}
               />
+            </div>
+            
+            <div ref={sliderWindowRef} className="red-circle-lines-container">
+              {chartData.map((line, idx) => {
+                return <div className="red-circle-line">
+                  {(displayRocketWindow && windowIndexes && (windowIndexes[0] - 25) === idx) ? 
+                    <div className="red-circle-window-style">
+                      <div className="yellow-text-container">
+                        <h3 className="window-text-style">Hover over annotations to see what happened at major price movements 👀</h3>
+                      </div>
+                      <div className="white-bottom-buttons-flex">
+                        <h3 
+                          className="white-bottom-buttons-style"
+                          onClick={() => {
+                            setRocketCircle(false);
+                            setDisplayRocketWindow(false);
+                            setRocketCircleCount(0);
+                          }}
+                        >
+                          Skip
+                        </h3>
+                        <h3 
+                          className="white-bottom-buttons-style"
+                          onClick={() => {
+                            setRocketCircle(false);
+                            setWindowIndexes(false);
+                            setDisplayRocketWindow(false);
+                            setRocketCircleCount(0);
+                            setHeadlineWindow(true);
+                            scroll(headlineWindowRef);
+                          }}
+                        >
+                          Next
+                        </h3>
+                      </div>
+                    </div> 
+                  : null}
+                </div>
+              })}
             </div>
           </Paper>
 
 
 
           <div className="company-profile-container">
-            {/* <div className="mobile-reset-container">
-              <h2 className="reset-button-style mobile-reset" onClick={() => setResetSliders(!resetSliders)}>Reset</h2>
-            </div> */}
             <div>
               <h2 className="company-profile-style">Company Profile</h2>
-              <h3 className="profile-para-style">{currentTickerDetails.description}</h3>
+              <h3 ref={resetWindowRef} className="profile-para-style">{currentTickerDetails.description}</h3>
             </div>
-            <div>
-              <h2 className="reset-button-style" onClick={() => setResetSliders(!resetSliders)}>Reset</h2>
+            <div className="reset-window-flex">
+              <div>
+                <h2 className="reset-button-style" onClick={() => setResetSliders(!resetSliders)}>Reset</h2>
+              </div>
+
+              {(resetWindow) ? 
+                <div className="window-arrow-flex reset-window-position">
+                  <div className="arrow-left"></div>
+                  <div className="red-circle-window-style reset-window-position">
+                    <div className="yellow-text-container">
+                      <h3 className="window-text-style">Click the reset button to return to the current day view.</h3>
+                    </div>
+                    <div className="white-bottom-buttons-flex">
+                      <h3 
+                        className="white-bottom-buttons-style"
+                        onClick={() => {
+                          setResetWindow(false);
+                          setSliderWindow(true);
+                          scroll(sliderWindowRef);
+                        }}
+                      >
+                        Prev
+                      </h3>
+                      <h3 
+                        className="white-bottom-buttons-style"
+                        onClick={() => {
+                          setResetWindow(false);
+                          setSearchWindow(true);
+                          scroll(searchWindowRef);
+                        }}
+                      >
+                        Next
+                      </h3>
+                    </div>
+                  </div>
+                </div> 
+              : <div></div>}
+
             </div>
           </div>
         </div>
@@ -1088,22 +1173,100 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
     {(currentNewsSlice && !apiLoading) ? 
       <div className="stories-align-flex">
-        <div className="all-stories-container"> 
+        <div className="all-stories-container">
+
+        {(sliderWindow) ? 
+          <div className="window-arrow-flex slider-window-position">
+            <div className="arrow-up"></div>
+            <div className="red-circle-window-style headline-window-style">
+              <div className="yellow-text-container">
+                <h3 className="window-text-style">Move the sliders to view data from specific date ranges. Headlines below will change dynamically based on the date range selected.</h3>
+              </div>
+              <div className="white-bottom-buttons-flex">
+                <h3 
+                  className="white-bottom-buttons-style"
+                  onClick={() => {
+                    setSliderWindow(false);
+                    setHeadlineWindow(true);
+                    scroll(headlineWindowRef);
+                  }}
+                >
+                  Prev
+                </h3>
+                <h3 
+                  className="white-bottom-buttons-style"
+                  onClick={() => {
+                    setSliderWindow(false);
+                    setResetWindow(true);
+                    scroll(resetWindowRef);
+                  }}
+                >
+                  Next
+                </h3>
+              </div>
+            </div>
+          </div> 
+        : <div></div>}
 
           <div className="all-stories-align">
             <div className="news-dates-flex">
               <h2 className="news-header-style">News | Press Releases</h2>
-              <h2 className="news-range-style">{chartData[stockIndexes[1]].month} - {chartData[stockIndexes[0]].month}</h2>
               <h2 className="news-range-style">{(chartData[stockIndexes[0]].price > chartData[stockIndexes[1]].price) ? <span className="red-price">{((chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price) < 0) ? '' : '-'}{(chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price).toString().slice(0, (chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price).toString().indexOf('.') + 3)} (-{(100 * Math.abs( (chartData[stockIndexes[0]].price - chartData[stockIndexes[1]].price) / ((chartData[stockIndexes[1]].price + chartData[stockIndexes[0]].price) / 2))).toString().slice(0, (100 * Math.abs( (chartData[stockIndexes[0]].price - chartData[stockIndexes[1]].price) / ((chartData[stockIndexes[1]].price + chartData[stockIndexes[0]].price) / 2))).toString().indexOf('.') + 3)}%)</span> : <span className="green-price">+{(chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price).toString().slice(0, (chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price).toString().indexOf('.') + 3)} (+{(100 * Math.abs( (chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price) / ((chartData[stockIndexes[1]].price + chartData[stockIndexes[0]].price) / 2))).toString().slice(0, (100 * Math.abs( (chartData[stockIndexes[1]].price - chartData[stockIndexes[0]].price) / ((chartData[stockIndexes[1]].price + chartData[stockIndexes[0]].price) / 2))).toString().indexOf('.') + 3)}%)</span>}</h2>
+              <h2  style={{ border: (sliderWindow) ? '3px solid #F40969' : 'none', }} className="news-range-style">{chartData[stockIndexes[1]].month} - {chartData[stockIndexes[0]].month}</h2>
             </div>
-            {currentNewsSlice.map(story => {
-              return <a href={story.url} target="_blank">
-                        <div className="story-container">
-                          <h3 className="story-source-style">{story.source} <span className="story-date-padding">{moment.unix(story.datetime).format('MMMM Do YYYY')}</span></h3>
-                          <h2 className="story-headline-style">{story.headline}</h2>
-                          <p className="story-para-style">{story.summary}</p>
+            {currentNewsSlice.map((story, idx) => {
+              return (idx === 0) ? 
+                <div ref={headlineWindowRef}> 
+                  <a href={story.url} target="_blank">
+                    <div className="story-container">
+                      <h3 className="story-source-style">{story.source} <span className="story-date-padding">{moment.unix(story.datetime).format('MMMM Do YYYY')}</span></h3>
+                      <h2 className="story-headline-style">{story.headline}</h2>
+                      <p className="story-para-style">{story.summary}</p>
+                    </div>
+                  </a>
+                  {(headlineWindow) ? 
+                    <div className="window-arrow-flex">
+                      <div className="arrow-up"></div>
+                      <div className="red-circle-window-style headline-window-style">
+                        <div className="yellow-text-container">
+                          <h3 className="window-text-style">Headlines are sorted from newest to oldest date published. </h3>
                         </div>
-                      </a>
+                        <div className="white-bottom-buttons-flex">
+                          <h3 
+                            className="white-bottom-buttons-style"
+                            onClick={() => {
+                              setHeadlineWindow(false);
+                              setRocketCircle(true);
+                              setRocketCircleCount(rocketCircleCount + 1);
+                              setDisplayRocketWindow(true);
+                              scroll(rocketCircleRef);
+                            }}
+                          >
+                            Prev
+                          </h3>
+                          <h3 
+                            className="white-bottom-buttons-style"
+                            onClick={() => {
+                              setHeadlineWindow(false);
+                              setSliderWindow(true);
+                              scroll(sliderWindowRef);
+                            }}
+                          >
+                            Next
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  : <div></div>}
+                </div>
+              : 
+              <a href={story.url} target="_blank">
+                <div className="story-container">
+                  <h3 className="story-source-style">{story.source} <span className="story-date-padding">{moment.unix(story.datetime).format('MMMM Do YYYY')}</span></h3>
+                  <h2 className="story-headline-style">{story.headline}</h2>
+                  <p className="story-para-style">{story.summary}</p>
+                </div>
+              </a>
             })}
           </div>
 
