@@ -376,6 +376,7 @@ a {
 .profile-para-style {
     font-family: 'IBM Plex Sans', sans-serif;
     font-weight: 100;
+    /* max-width: 400px; */
 
 }
 
@@ -410,7 +411,7 @@ a {
     cursor: pointer;
     transition: transform 0.5s, box-shadow 0.5s;
     margin-top: 25px;
-    margin-right: 25px;
+    margin-right: 5px;
 }
 
 .reset-button-style:hover {
@@ -894,6 +895,7 @@ a {
     margin: 0;
     padding: 10px;
     font-weight: 100;
+    cursor: pointer;
 }
 
 .red-slider-thumb {
@@ -932,7 +934,17 @@ a {
       right: 75%;
   }
 
+  .slider-window-position-mobile {
+      left: 50%;
+      right: 50%;
+  }
+
   .search-window-position {
       left: 70%;
       margin-top: 70px;
+  }
+
+  .search-window-position-mobile {
+    left: 50%;
+    margin-top: 70px;
   }

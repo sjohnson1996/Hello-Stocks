@@ -18,7 +18,7 @@ import redCircle from '../images/red-circle.png';
 import circleRocket from '../images/circle-rocket.png';
 import Pagination from '@material-ui/lab/Pagination';
 import TextLoop from "react-text-loop";
-
+import dotenv from 'dotenv';
 import Chart, {
   ArgumentAxis,
   ValueAxis,
@@ -54,6 +54,8 @@ import tutorial5 from '../images/tutorial-5.png';
 import astroGirl from '../images/astro-girl.png';
 import { gsap } from "gsap";
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+
+dotenv.config()
 
 const useStyles = makeStyles(theme => ({
   inputRoot: {
@@ -195,11 +197,31 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   const [resetWindow, setResetWindow] = useState(false);
   const [searchWindow, setSearchWindow] = useState(false);
 
+  // Polygon API Keys Array
+  const [polygonKeys, setPolygonKeys] = useState([
+    process.env.REACT_APP_POLYGON_1,
+    process.env.REACT_APP_POLYGON_2,
+  ]);
+
+
+  // Cycle Through API Keys
+  const cycleKeys = () => {
+    const keys = [...polygonKeys];
+
+    keys.push(keys.shift());
+
+    setPolygonKeys(keys);
+  }
+
 
 // Refactor API calls and useEffects, need to use formatted chart data chartData for this useEffect
   useEffect(() => {
     if (currentTicker) {
     console.log('TEST');
+
+    cycleKeys();
+
+    console.log(polygonKeys[0]);
 
     setApiLoading(true);
 
@@ -212,19 +234,18 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     let yearAgo = (yyyy - 1) + '-' + mm + '-' + dd;
 
     
-    axios.get(`https://api.polygon.io/v1/meta/symbols/${currentTicker}/company?&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
+    axios.get(`https://api.polygon.io/v1/meta/symbols/${currentTicker}/company?&apiKey=${polygonKeys[0]}`)
       .then(details => {
         setCurrentTickerDetails(details.data);
       
     
 
-    axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${yearAgo}/${today}?unadjusted=false&sort=asc&limit=550&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
+    axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${yearAgo}/${today}?unadjusted=false&sort=asc&limit=550&apiKey=${polygonKeys[0]}`)
       .then(res => {
 
         const tempChartData = [];
 
         res.data.results.map(data => {
-          console.log(data);
           tempChartData.push({ month: moment(data.t).format('MMMM Do YYYY'), price: data.c, monthYear: moment(data.t).format('MMMM YYYY'), newsDates: moment(data.t).format('YYYY-MM-DD'), mmddyyy: moment(data.t).format('MM/DD/YYYY'), allInfo: data })
         })
 
@@ -276,7 +297,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
                 console.log(tempChartData[currentSegmentLargest.indexes[0]].newsDates)   
                 console.log(tempChartData[currentSegmentLargest.indexes[1]].newsDates)
                 
-                axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${tempChartData[currentSegmentLargest.indexes[0]].newsDates}&to=${tempChartData[currentSegmentLargest.indexes[1]].newsDates}&token=c2mjfh2ad3idu4ai7v4g`)
+                axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${tempChartData[currentSegmentLargest.indexes[0]].newsDates}&to=${tempChartData[currentSegmentLargest.indexes[1]].newsDates}&token=${process.env.REACT_APP_FINNHUB}`)
                   .then(news => {
                         if (news.data.length) {
                           if (news.data.length < 3) {
@@ -325,8 +346,9 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
           setTimeout(() => {
             setRocketCircle(true);
             setDisplayRocketWindow(true);
+            // scroll(rocketCircleRef);
             localStorage.setItem('tutorial', true);
-          }, 2000)
+          }, 1000)
         }
       })
       .catch(() => setErrorLoadingData(true))
@@ -350,7 +372,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
   useEffect(() => {
     if (chartData) {
-        axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${chartData[stockIndexes[0]].newsDates}&to=${chartData[stockIndexes[1]].newsDates}&token=c2mjfh2ad3idu4ai7v4g`)
+        axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${chartData[stockIndexes[0]].newsDates}&to=${chartData[stockIndexes[1]].newsDates}&token=${process.env.REACT_APP_FINNHUB}`)
         .then(res => {
           console.log(res.data);
           setAllNewsStories(res.data);
@@ -425,7 +447,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
       if (chartData) {
 
-        axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${chartData[stockIndexes[0]].newsDates}&to=${chartData[stockIndexes[1]].newsDates}&token=c2mjfh2ad3idu4ai7v4g`)
+        axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${chartData[stockIndexes[0]].newsDates}&to=${chartData[stockIndexes[1]].newsDates}&token=${process.env.REACT_APP_FINNHUB}`)
         .then(res => {
           console.log(res.data);
           setAllNewsStories(res.data);
@@ -441,16 +463,16 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       today = yyyy + '-' + mm + '-' + dd;
       let yearAgo = (yyyy - 1) + '-' + mm + '-' + dd;
 
-      axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${returnTimeFrame()[1]}/${returnTimeFrame()[0]}?unadjusted=false&sort=asc&limit=550&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
+      axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${returnTimeFrame()[1]}/${returnTimeFrame()[0]}?unadjusted=false&sort=asc&limit=550&apiKey=${polygonKeys[0]}`)
         .then(res => {setStockData(res.data.results); console.log(res.data)});
 
-      axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${currentTicker}&metric=all&token=c2mjfh2ad3idu4ai7v4g`)
+      axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${currentTicker}&metric=all&token=${process.env.REACT_APP_FINNHUB}`)
         .then(res => {
           console.log(res.data);
           setBasicFinancials(res.data);
         });
 
-      axios.get(`https://finnhub.io/api/v1/quote?symbol=${currentTicker}&token=c2mjfh2ad3idu4ai7v4g`)
+      axios.get(`https://finnhub.io/api/v1/quote?symbol=${currentTicker}&token=${process.env.REACT_APP_FINNHUB}`)
         .then(res => {
           console.log(res.data);
           setPriceQuote(res.data);
@@ -463,7 +485,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     if (search === '') {
       return;
     }
-    axios.get(`https://api.polygon.io/v3/reference/tickers?market=stocks&search=${search}&active=true&sort=ticker&order=asc&limit=10&apiKey=vHjNP5FWBDFMkOyTytTHerS_1MYNXG5z`)
+    axios.get(`https://api.polygon.io/v3/reference/tickers?market=stocks&search=${search}&active=true&sort=ticker&order=asc&limit=10&apiKey=${polygonKeys[0]}`)
       .then(res => {
         if (res.data.results) {
           setTickers(res.data.results);
@@ -659,7 +681,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   const redCircleTemplate = (annotation) => {
     return (
       <svg>
-        <image onClick={() => setStockIndexes(annotation.indexes)} href={circleRocket} width="70" />
+        <image onClick={() => setStockIndexes(annotation.indexes)} href={circleRocket} width={(smallRocket) ? '70' : '50'} />
       </svg>
     )
   }
@@ -734,7 +756,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
             </div>
 
             {(searchWindow) ? 
-              <div className="window-arrow-flex search-window-position">
+              <div className={`window-arrow-flex ${(!smallRocket) ? 'search-window-position-mobile' : 'search-window-position'}`}>
                 <div className="arrow-up"></div>
                 <div className="red-circle-window-style headline-window-style">
                   <div className="yellow-text-container">
@@ -911,7 +933,6 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
     : null}
     
    
-
     {(currentChartData && currentTickerDetails && priceQuote && basicFinancials && !apiLoading) ?
         <div className="align-ticker-details">
           
@@ -1066,7 +1087,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
             <div ref={sliderWindowRef} className="red-circle-lines-container">
               {chartData.map((line, idx) => {
                 return <div className="red-circle-line">
-                  {(displayRocketWindow && windowIndexes && (windowIndexes[0] - 25) === idx) ? 
+                  {(displayRocketWindow && windowIndexes && (Math.floor((chartData.length / 2) - 90)) === idx) ?  
                     <div className="red-circle-window-style">
                       <div className="yellow-text-container">
                         <h3 className="window-text-style">Hover over annotations to see what happened at major price movements 👀</h3>
@@ -1106,6 +1127,38 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
 
 
           <div className="company-profile-container">
+            {(sliderWindow && !smallRocket) ? 
+            <div className="window-arrow-flex slider-window-position-mobile">
+              <div className="arrow-up"></div>
+              <div className="red-circle-window-style headline-window-style">
+                <div className="yellow-text-container">
+                  <h3 className="window-text-style">Move the sliders to view data from specific date ranges. Headlines below will change dynamically based on the date range selected.</h3>
+                </div>
+                <div className="white-bottom-buttons-flex">
+                  <h3 
+                    className="white-bottom-buttons-style"
+                    onClick={() => {
+                      setSliderWindow(false);
+                      setHeadlineWindow(true);
+                      scroll(headlineWindowRef);
+                    }}
+                  >
+                    Prev
+                  </h3>
+                  <h3 
+                    className="white-bottom-buttons-style"
+                    onClick={() => {
+                      setSliderWindow(false);
+                      setResetWindow(true);
+                      scroll(resetWindowRef);
+                    }}
+                  >
+                    Next
+                  </h3>
+                </div>
+              </div>
+            </div> 
+          : <div></div>}
             <div>
               <h2 className="company-profile-style">Company Profile</h2>
               <h3 ref={resetWindowRef} className="profile-para-style">{currentTickerDetails.description}</h3>
@@ -1175,7 +1228,7 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
       <div className="stories-align-flex">
         <div className="all-stories-container">
 
-        {(sliderWindow) ? 
+        {(sliderWindow && smallRocket) ? 
           <div className="window-arrow-flex slider-window-position">
             <div className="arrow-up"></div>
             <div className="red-circle-window-style headline-window-style">

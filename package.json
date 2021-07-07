@@ -14,6 +14,7 @@
     "axios": "^0.21.1",
     "devextreme": "^20.2.4",
     "devextreme-react": "20.2.3",
+    "dotenv": "^10.0.0",
     "gsap": "^3.6.1",
     "moment": "^2.29.1",
     "react": "^17.0.2",
