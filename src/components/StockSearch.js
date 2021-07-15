@@ -214,129 +214,140 @@ const TitleText = withStyles(titleStyles)(({ classes, ...props }) => (
   }
 
 
-// Refactor API calls and useEffects, need to use formatted chart data chartData for this useEffect
+// Triggered when a new stock ticker is clicked
   useEffect(() => {
     if (currentTicker) {
-    console.log('TEST');
 
+    // Swaps out the API Keys
     cycleKeys();
 
-    console.log(polygonKeys[0]);
-
+    // Loading Image
     setApiLoading(true);
 
+
+    // Date Formatting, could change to Moment.js
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
     let mm = String(today.getMonth() + 1).padStart(2, '0');
     let yyyy = today.getFullYear();
-
     today = yyyy + '-' + mm + '-' + dd;
     let yearAgo = (yyyy - 1) + '-' + mm + '-' + dd;
 
-    
+    // Company / Ticker Info
     axios.get(`https://api.polygon.io/v1/meta/symbols/${currentTicker}/company?&apiKey=${polygonKeys[0]}`)
       .then(details => {
         setCurrentTickerDetails(details.data);
       
     
+      // Nested API Call, A years worth of stock data 
+      axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${yearAgo}/${today}?unadjusted=false&sort=asc&limit=550&apiKey=${polygonKeys[0]}`)
+        .then(res => {
 
-    axios.get(`https://api.polygon.io/v2/aggs/ticker/${currentTicker}/range/1/day/${yearAgo}/${today}?unadjusted=false&sort=asc&limit=550&apiKey=${polygonKeys[0]}`)
-      .then(res => {
+          // Storing reformatted data
+          const tempChartData = [];
 
-        const tempChartData = [];
+          // Reformatting Data
+          res.data.results.map(data => {
+            tempChartData.push({ 
+              month: moment(data.t).format('MMMM Do YYYY'), 
+              price: data.c, 
+              monthYear: moment(data.t).format('MMMM YYYY'), 
+              newsDates: moment(data.t).format('YYYY-MM-DD'), 
+              mmddyyy: moment(data.t).format('MM/DD/YYYY'), 
+              allInfo: data, 
+            })
+          })
 
-        res.data.results.map(data => {
-          tempChartData.push({ month: moment(data.t).format('MMMM Do YYYY'), price: data.c, monthYear: moment(data.t).format('MMMM YYYY'), newsDates: moment(data.t).format('YYYY-MM-DD'), mmddyyy: moment(data.t).format('MM/DD/YYYY'), allInfo: data })
-        })
+          // Storing the Rocket Ship Annotation Objects
+          const fiveSignificantDates = [];
 
-        const fiveSignificantDates = [];
+          // Dividing the stock data into 5 segments
+          const mainSegmentsLength = Math.floor(tempChartData.length / 5);
 
-        const mainSegmentsLength = Math.floor(tempChartData.length / 5);
+          // Looping through 5 segments of data
+          for (let i = 0; i < 5; i++) {
 
-              for (let i = 0; i < 5; i++) {
-
-                const mainSegment = tempChartData.slice(i * mainSegmentsLength, (i * mainSegmentsLength) + mainSegmentsLength);
-      
-                const currentSegmentLargest = {
-                  indexes: [],
-                  value: 0,
-                  middlePoint: {},
-                  date: '',
-                  description: 'Test',
-                  image: rocket,
-                  stories: [],
-                  dateRange: [],
-                  priceDifference: [],
-                };
-      
-                for (let j = 0; j < mainSegment.length; j++) {
-      
-                  if (mainSegment[j + 5]) {
-                    if (Math.abs(mainSegment[j].price - mainSegment[j + 5].price) > currentSegmentLargest.value) {
-                      // currentSegmentLargest.indexes = [j, j + 5];
-                      currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[j + 5])];
-                      currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[j + 5].price);
-                      currentSegmentLargest.priceDifference = [mainSegment[j].price, mainSegment[j + 5].price];
-                      currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j + 3])];
-                      currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j + 3])].newsDates;
-                      currentSegmentLargest.dateRange = [tempChartData[tempChartData.indexOf(mainSegment[j])].month, tempChartData[tempChartData.indexOf(mainSegment[j + 5])].month]
-                    }
-                  } else {
-                    if (Math.abs(mainSegment[j] - mainSegment[mainSegment.length - 1]) > currentSegmentLargest.value) {
-                      // currentSegmentLargest.indexes = [j, mainSegment.length - 1];
-                      currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[mainSegment.length - 1])];
-                      currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[mainSegment.length - 1].price);
-                      currentSegmentLargest.priceDifference = [mainSegment[j].price, mainSegment[mainSegment.length - 1].price];
-                      currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j])];
-                      currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j])].newsDates;
-                      currentSegmentLargest.dateRange = [tempChartData[tempChartData.indexOf(mainSegment[j])].month, tempChartData[tempChartData.indexOf(mainSegment[mainSegment.length - 1])].month]
-                    }
-                  }
+            // The Array for the current segment in the loop
+            const mainSegment = tempChartData.slice(i * mainSegmentsLength, (i * mainSegmentsLength) + mainSegmentsLength);
+  
+            // Object Formatting for Rocket Ship Annotation
+            const currentSegmentLargest = {
+              indexes: [],
+              value: 0,
+              middlePoint: {},
+              date: '',
+              description: 'Test',
+              image: rocket,
+              stories: [],
+              dateRange: [],
+              priceDifference: [],
+            };
+  
+            // Looping through the current data segment
+            for (let j = 0; j < mainSegment.length; j++) {
+  
+              // If 5 indexes ahead of current index exists
+              if (mainSegment[j + 5]) {
+                // if price difference between current index and current + 5 is bigger than largest...
+                if (Math.abs(mainSegment[j].price - mainSegment[j + 5].price) > currentSegmentLargest.value) {
+                  currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[j + 5])];
+                  currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[j + 5].price);
+                  currentSegmentLargest.priceDifference = [mainSegment[j].price, mainSegment[j + 5].price];
+                  currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j + 3])];
+                  currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j + 3])].newsDates;
+                  currentSegmentLargest.dateRange = [tempChartData[tempChartData.indexOf(mainSegment[j])].month, tempChartData[tempChartData.indexOf(mainSegment[j + 5])].month]
                 }
-      
-                console.log(tempChartData[currentSegmentLargest.indexes[0]].newsDates)   
-                console.log(tempChartData[currentSegmentLargest.indexes[1]].newsDates)
-                
-                axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${tempChartData[currentSegmentLargest.indexes[0]].newsDates}&to=${tempChartData[currentSegmentLargest.indexes[1]].newsDates}&token=${process.env.REACT_APP_FINNHUB}`)
-                  .then(news => {
-                        if (news.data.length) {
-                          if (news.data.length < 3) {
-                            const stories = [];
-                            let k = 0;
-                            while (stories.length < news.data.length) {
-                              stories.push(news.data[k]);
-                              k++;
-                            }
-                            currentSegmentLargest.stories = stories;
-                  
-                            fiveSignificantDates.push(currentSegmentLargest);
-                          } else {
-                            const stories = [];
-                            let k = 0;
-                            while (stories.length < 3) {
-
-                              if (news.data[k]?.headline) {
-                                if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
-                                  stories.push(news.data[k]);
-                                }
-                              }
-
-                              k++;
-
-                              if (k >= news.data.length) break;
-                            }
-                            currentSegmentLargest.stories = stories;
-                  
-                            fiveSignificantDates.push(currentSegmentLargest);
-                          }
-                        }
-                  })
-      
-                
-      
+              } else {
+                // If there are less than 5 indexes left, still check if greater than largest
+                if (Math.abs(mainSegment[j] - mainSegment[mainSegment.length - 1]) > currentSegmentLargest.value) {
+                  // currentSegmentLargest.indexes = [j, mainSegment.length - 1];
+                  currentSegmentLargest.indexes = [tempChartData.indexOf(mainSegment[j]), tempChartData.indexOf(mainSegment[mainSegment.length - 1])];
+                  currentSegmentLargest.value = Math.abs(mainSegment[j].price - mainSegment[mainSegment.length - 1].price);
+                  currentSegmentLargest.priceDifference = [mainSegment[j].price, mainSegment[mainSegment.length - 1].price];
+                  currentSegmentLargest.middlePoint = tempChartData[tempChartData.indexOf(mainSegment[j])];
+                  currentSegmentLargest.date = tempChartData[tempChartData.indexOf(mainSegment[j])].newsDates;
+                  currentSegmentLargest.dateRange = [tempChartData[tempChartData.indexOf(mainSegment[j])].month, tempChartData[tempChartData.indexOf(mainSegment[mainSegment.length - 1])].month]
+                }
               }
+            }
             
- 
+            // 
+            axios.get(`https://finnhub.io/api/v1/company-news?symbol=${currentTicker}&from=${tempChartData[currentSegmentLargest.indexes[0]].newsDates}&to=${tempChartData[currentSegmentLargest.indexes[1]].newsDates}&token=${process.env.REACT_APP_FINNHUB}`)
+              .then(news => {
+                    if (news.data.length) {
+                      if (news.data.length < 3) {
+                        const stories = [];
+                        let k = 0;
+                        while (stories.length < news.data.length) {
+                          stories.push(news.data[k]);
+                          k++;
+                        }
+                        currentSegmentLargest.stories = stories;
+              
+                        fiveSignificantDates.push(currentSegmentLargest);
+                      } else {
+                        const stories = [];
+                        let k = 0;
+                        while (stories.length < 3) {
+
+                          if (news.data[k]?.headline) {
+                            if (news.data[k].headline.includes(details.data.name.split(' ')[0]) || news.data[k].headline.includes(details.data.name.split(' ')[0] + 's') || news.data[k].headline.includes(currentTicker)) {
+                              stories.push(news.data[k]);
+                            }
+                          }
+
+                          k++;
+
+                          if (k >= news.data.length) break;
+                        }
+                        currentSegmentLargest.stories = stories;
+              
+                        fiveSignificantDates.push(currentSegmentLargest);
+                      }
+                    }
+              })
+          }
+            
         console.log(fiveSignificantDates);
         setFiveSignificantDates(fiveSignificantDates);
         setApiLoading(false);
